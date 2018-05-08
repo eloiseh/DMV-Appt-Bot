@@ -27,6 +27,14 @@ class Bot:
             icon_emoji = ':robot_face:')
         self.logger.log("Message sent to %s: %s" % (SLACK_CHANNEL, msg.replace('\n',' ').replace('=','').replace('*','')))
 
+    def post_text(self, msg):
+        self.sc.api_call(
+            "chat.postMessage",
+            channel = SLACK_CHANNEL,
+            text = msg,
+            username = 'Bot',
+            icon_emoji = ':robot_face:')
+
     def listen(self):
         if self.sc.rtm_connect():
             self.logger.log("Bot is listening to %s" % SLACK_CHANNEL)

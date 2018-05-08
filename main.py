@@ -17,8 +17,14 @@ class App:
 
     def run(self):
         self.logger.log("App start")
+        self.bot.post_message("Bot starts working!")
+        heartbeat = datetime.now()
 
         while True:
+            if (datetime.now() - heartbeat) / timedelta(minutes=60) > 1:
+                self.bot.post_text("Still working...")
+                heartbeat = datetime.now()
+
             if not self._is_daytime():
                 self.logger.log("Is night, going to sleep")
                 self._sleep_till_morning()
