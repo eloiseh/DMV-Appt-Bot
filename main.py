@@ -17,7 +17,7 @@ class App:
 
     def run(self):
         self.logger.log("App start")
-        self.bot.post_message("Bot starts working!")
+        self.bot.post_text("Bot starts working!")
         heartbeat = datetime.now()
 
         while True:
