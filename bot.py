@@ -23,7 +23,7 @@ class Bot:
             "chat.postMessage",
             channel = SLACK_CHANNEL,
             text = msg,
-            username = 'DMV-bot',
+            username = 'Bot',
             icon_emoji = ':robot_face:')
         self.logger.log("Message sent to %s: %s" % (SLACK_CHANNEL, msg.replace('\n',' ').replace('=','').replace('*','')))
 
@@ -44,7 +44,7 @@ class Bot:
             "chat.postMessage",
             channel = SLACK_CHANNEL,
             text = cmd,
-            username = 'DMV-bot',
+            username = 'Bot',
             icon_emoji = ':robot_face:')
 
     def _parse_slack_output(self, rtm_output):
