@@ -12,11 +12,12 @@ LOCATIONS = {
     'Las Gatos': '640'
 }
 PROFILE = {
-    'first_name': 'David',
-    'last_name': 'Anderson',
-    'tel_prefix': '213',
-    'tel_suffix1': '275',
-    'tel_suffix2': '4628'
+    'first_name': 'Zhao',
+    'last_name': 'Dong',
+    'tel_prefix': '412',
+    'tel_suffix1': '608',
+    'tel_suffix2': '3112',
+    'email': 'joe.pekdz@gmail.com'
     #    'mm': '09',
     #    'dd': '01',
     #    'yyyy': '1994',

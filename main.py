@@ -1,7 +1,7 @@
 from scraper import Scraper
 from settings import LOCATIONS, TIMERANGE, PERIOD, EARLESTDAY
 from bot import Bot
-from database import DB
+# from database import DB
 from logger import Logger
 from datetime import datetime
 from datetime import timedelta
@@ -10,10 +10,10 @@ import threading
 
 class App:
     def __init__(self):
-        self.db = DB()
+        # self.db = DB()
         self.logger = Logger()
         self.bot = Bot()
-        self.scraper = Scraper()
+        self.scraper = Scraper(1, EARLESTDAY, TIMERANGE, True)
 
     def run(self):
         self.logger.log("App start")
@@ -38,35 +38,27 @@ class App:
     def run_once(self):
         for location, office_id in LOCATIONS.items():
             # self.logger.log("Checking appointment for %s" % location)
-            appt = self.scraper.i_want_an_appointment_at(office_id)
-            if appt:
+            appt, valid, complete = self.scraper.i_want_an_appointment_at(office_id)
+            if valid:
                 # self.logger.log("Appointment retrieved from web page")
-                if self._check_time_require(appt):
-                    if not self.db.appt_exists(location, appt):
-                        self.logger.log("New appointment found. Added to DB.")
-                        msg = "*{}*\n{}".format(location, appt)
-                        self.bot.post_message(msg)
-                    else:
-                        self.logger.log("Appointment already exists in DB.")
-                else:
-                    self.logger.log("Date doesn't meet requirement.")
-            else:
-                self.logger.log("Invalid appointment object returned")
+                msg = "*{}*\n{}".format(location, appt)
+                self.bot.post_message(msg)
 
-    def _check_time_require(self, timestr):
-        time_dmv = datetime.strptime(timestr.strip(), '%A, %B %d, %Y at %I:%M %p')
-        time_now = datetime.strptime(EARLESTDAY, '%B %d, %Y')
-        diff = (time_dmv - time_now)/timedelta(days=1)
-        return diff < TIMERANGE
+                if complete:
+                    self.logger.log("Appointment at %s has been made, finish." % appt)
+                    self.bot.post_text("Appointment has been made :)")
+                    exit(0)
+            else:
+                self.logger.log("No required available date.")
 
     def _is_daytime(self):
         curr_hour = datetime.now().hour
-        # return True if not 0 <= curr_hour <= 8 else False
-        return True
+        return True if not 1 <= curr_hour <= 7 else False
+        # return True
 
     def _sleep_till_morning(self):
         self.logger.log("Is night time, going to sleep now.")
-        sleep_in_hours = 8 - datetime.now().hour
+        sleep_in_hours = 7 - datetime.now().hour
         time.sleep(sleep_in_hours * 3600)
 
 if __name__ == "__main__":

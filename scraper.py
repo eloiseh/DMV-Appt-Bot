@@ -1,50 +1,72 @@
 from selenium import webdriver
 from settings import PROFILE, URL
 from logger import Logger
+from datetime import datetime, timedelta
 import time
+import urllib
 
 
 class Scraper:
-    def __init__(self):
+    def __init__(self, type, start_date, time_range, auto_make):
         self.logger = Logger()
         # Start a real browser or background CLI 
         # self.browser = webdriver.Chrome('./chromedriver')
         self.browser = webdriver.PhantomJS('phantomjs')
         self.logger.log("New instance of scraper created")
-        
+        self.type = type
+        self.start_date = start_date
+        self.time_range = time_range
+        self.auto_make = auto_make
+
     def i_want_an_appointment_at(self, office_id):
         self.logger.log("Start an appointment searching process for {}.".format(office_id))
         self.browser.delete_all_cookies()
         self.browser.get(URL)
         time.sleep(3)
 
-        browser = self.form_fill_and_submit(self.browser, office_id)
-        browser.switch_to_default_content()
-        appt = self.get_appointment(browser)
-        if appt and appt[:5] == 'Sorry':
-            return None
-        return appt
+        if self.form_fill_and_submit(self.browser, office_id):
+            return self.get_appointment(self.browser)
+        else:
+            return None, False, False
 
     def form_fill_and_submit(self, browser, office_id):
-        browser.find_element_by_xpath('//*[@id="officeId"]/option[@value={}]'.format(office_id)).click()
-        browser.find_element_by_xpath('//*[@id="one_task"]').click()
-        browser.find_element_by_xpath('//*[@id="taskCID"]').click()
-        #browser.find_element_by_xpath('//*[@id="DT"]').click()
-        browser.find_element_by_xpath('//*[@id="first_name"]').send_keys(PROFILE['first_name'])
-        browser.find_element_by_xpath('//*[@id="last_name"]').send_keys(PROFILE['last_name'])
-        browser.find_element_by_xpath('//*[@id="areaCode"]').send_keys(PROFILE['tel_prefix'])
-        browser.find_element_by_xpath('//*[@id="telPrefix"]').send_keys(PROFILE['tel_suffix1'])
-        browser.find_element_by_xpath('//*[@id="telSuffix"]').send_keys(PROFILE['tel_suffix2'])
-        # browser.find_element_by_xpath('//*[@id="b_day"]').send_keys(PROFILE['mm'])
-        # browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[8]/div/div/span/input[2]').send_keys(PROFILE['dd'])
-        # browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[8]/div/div/span/input[3]').send_keys(PROFILE['yyyy'])
-        # browser.find_element_by_xpath('//*[@id="dl_number"]').send_keys(PROFILE['dl_number'])
-        # browser.find_element_by_xpath('//*[@id="phone_no"]').send_keys(PROFILE['tel_prefix'])
-        # browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[9]/div/span/input[2]').send_keys(PROFILE['tel_suffix1'])
-        # browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[9]/div/span/input[3]').send_keys(PROFILE['tel_suffix2'])
-        browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[8]/input[2]').click()
-        # self.logger.log("Form filled and submitted for office %s" % office_id)
-        return browser
+        try:
+            browser.find_element_by_xpath('//*[@id="officeId"]/option[@value={}]'.format(office_id)).click()
+
+            if self.type == 1:
+                browser.find_element_by_xpath('//*[@id="one_task"]').click()
+                browser.find_element_by_xpath('//*[@id="taskCID"]').click()
+                browser.find_element_by_xpath('//*[@id="first_name"]').send_keys(PROFILE['first_name'])
+                browser.find_element_by_xpath('//*[@id="last_name"]').send_keys(PROFILE['last_name'])
+                browser.find_element_by_xpath('//*[@id="areaCode"]').send_keys(PROFILE['tel_prefix'])
+                browser.find_element_by_xpath('//*[@id="telPrefix"]').send_keys(PROFILE['tel_suffix1'])
+                browser.find_element_by_xpath('//*[@id="telSuffix"]').send_keys(PROFILE['tel_suffix2'])
+                browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[8]/input[2]').click()
+            elif self.type == 2:
+                browser.find_element_by_xpath('//*[@id="DT"]').click()
+                browser.find_element_by_xpath('//*[@id="b_day"]').send_keys(PROFILE['mm'])
+                browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[8]/div/div/span/input[2]').send_keys(PROFILE['dd'])
+                browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[8]/div/div/span/input[3]').send_keys(PROFILE['yyyy'])
+                browser.find_element_by_xpath('//*[@id="dl_number"]').send_keys(PROFILE['dl_number'])
+                browser.find_element_by_xpath('//*[@id="phone_no"]').send_keys(PROFILE['tel_prefix'])
+                browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[9]/div/span/input[2]').send_keys(PROFILE['tel_suffix1'])
+                browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[9]/div/span/input[3]').send_keys(PROFILE['tel_suffix2'])
+            
+            # self.logger.log("Form filled and submitted for office %s" % office_id)
+            browser.switch_to_default_content()
+            return True
+        except:
+            self.logger.log("No valid appointment xpath found when filling 1st form.")
+            pass
+
+        return False
+
+
+    def _check_time_require(self, timestr):
+        time_dmv = datetime.strptime(timestr.strip(), '%A, %B %d, %Y at %I:%M %p')
+        time_now = datetime.strptime(self.start_date, '%B %d, %Y')
+        diff = (time_dmv - time_now)/timedelta(days=1)
+        return diff < self.time_range and diff >= 0
 
     def get_appointment(self, browser):
         time.sleep(3)
@@ -53,16 +75,72 @@ class Scraper:
             element = browser.find_element_by_xpath('//*[@id="app_content"]/form/div[1]/div[2]/table/tbody/tr/td[3]/p[2]/strong').get_attribute('innerHTML')
             # element = browser.find_element_by_xpath('//*[@id="app_content"]/div[1]/div[2]/table/tbody/tr/td[2]/p[2]/strong').get_attribute('innerHTML')
             # self.logger.log("Valid appointment xpath found")
-            return element
+            if element and element[:5] == 'Sorry':
+                return element, False, False
+            
+            elif self._check_time_require(element):
+                print("Valid Date!")
+                if self.auto_make:
+                    print("Find a good date!")
+                    browser.find_element_by_xpath('//*[@id="app_content"]/div/a[1]').click()
+                    # browser.find_element_by_xpath("//a[normalize-space(.)='Continue']").click()
+                    browser.switch_to_default_content()
+                    return element, True, self.appt_form_fill(browser)
+                else:
+                    return element, True, False
+            else:
+                return element, False, False
+
         except:
-            self.logger.log("No valid appointment xpath found")
+            self.logger.log("No valid appointment xpath found when filling 2nd form.")
             pass
+
         # No available date
         try:
             element = browser.find_element_by_xpath('//*[@id="app_content"]/table/tbody/tr[2]/td/p').get_attribute('innerHTML')
             self.logger.log("No available appointments")
-            return element
+            return element, False, False
         except:
             self.logger.log("Invalid xpath - no element found")
             pass
-        return None
+        
+        return None, False, False
+
+    def appt_form_fill(self, browser):
+        time.sleep(3)
+
+        browser.find_element_by_xpath('//*[@id="email_method"]').click()
+        browser.find_element_by_xpath('//*[@id="notify_email"]').send_keys(PROFILE['email'])
+        browser.find_element_by_xpath('//*[@id="notify_email_confirm"]').send_keys(PROFILE['email'])    
+        
+        # browser.find_element_by_xpath('//*[@id="notify_smsTelArea"]').send_keys(PROFILE['tel_prefix'])
+        # browser.find_element_by_xpath('//*[@id="notify_smsTelPrefix"]').send_keys(PROFILE['tel_suffix1'])
+        # browser.find_element_by_xpath('//*[@id="notify_smsTelSuffix"]').send_keys(PROFILE['tel_suffix2'])
+        # browser.find_element_by_xpath('//*[@id="notify_smsTelArea_confirm"]').send_keys(PROFILE['tel_prefix'])
+        # browser.find_element_by_xpath('//*[@id="notify_smsTelPrefix_confirm"]').send_keys(PROFILE['tel_suffix1'])
+        # browser.find_element_by_xpath('//*[@id="notify_smsTelSuffix_confirm"]').send_keys(PROFILE['tel_suffix2'])
+
+        browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[11]/input[1]').click()
+        browser.switch_to_default_content()
+
+        time.sleep(3)
+        browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[10]/input[1]').click()
+        browser.switch_to_default_content()
+
+        time.sleep(3)
+        if "System Unavailable" not in browser.find_element_by_xpath('//*[@id="app_content"]').get_attribute('innerHTML'):
+            # browser.save_screenshot("screenshot_%d.png" % int(time.time()))
+            # urllib.request("/wasapp/foa/generateQRCode.do", "qrcode_%d.png" % int(time.time()))
+            # browser.find_element_by_xpath('//*[@id="emailAddress"]').send_keys(PROFILE['email'])
+            # browser.find_element_by_xpath('//*[@id="validateEmailAddress"]').send_keys(PROFILE['email'])
+            # browser.find_element_by_xpath('//*[@id="sendEmailButton"]').click()
+            time.sleep(2)
+            return True
+        else:
+            return False
+            
+
+
+
+
+
