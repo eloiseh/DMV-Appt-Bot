@@ -1,9 +1,10 @@
 SLACK_CHANNEL = 'bot' # this should be the slack channel which you want to send messages to
 #URL = 'https://www.dmv.ca.gov/wasapp/foa/findDriveTest.do'  # behind the wheel test
 URL = 'https://www.dmv.ca.gov/wasapp/foa/findOfficeVisit.do' # permit test
-TIMERANGE = 7
+TIMERANGE = 4
 EARLESTDAY = "May 17, 2018"
-PERIOD = 60
+DAY_PERIOD = 60
+NIGHT_PERIOD = 300
 LOCATIONS = {
     # 'San Mateo': '130', # the office ID obtained by inspecting the xpath, this is what selenium uses to identify the correct option
     'Redwood City': '548',

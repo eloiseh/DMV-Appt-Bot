@@ -1,5 +1,5 @@
 from scraper import Scraper
-from settings import LOCATIONS, TIMERANGE, PERIOD, EARLESTDAY
+from settings import LOCATIONS, TIMERANGE, DAY_PERIOD, NIGHT_PERIOD, EARLESTDAY
 from bot import Bot
 # from database import DB
 from logger import Logger
@@ -26,14 +26,18 @@ class App:
                 heartbeat = datetime.now()
 
             if not self._is_daytime():
-                self.logger.log("Is night, going to sleep")
-                self._sleep_till_morning()
-                self.logger.log("Waking up from sleep")
+                # self.logger.log("Is night, going to sleep")
+                # self._sleep_till_morning()
+                # self.logger.log("Waking up from sleep")
+                self.logger.log("Is nightime, start a new round")
+                self.run_once()
+                self.logger.log("End a round")
+                time.sleep(DAY_PERIOD)
             else:
                 self.logger.log("Is daytime, start a new round")
                 self.run_once()
                 self.logger.log("End a round")
-                time.sleep(PERIOD)
+                time.sleep(NIGHT_PERIOD)
 
     def run_once(self):
         for location, office_id in LOCATIONS.items():
