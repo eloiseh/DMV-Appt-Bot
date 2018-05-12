@@ -1,7 +1,7 @@
 SLACK_CHANNEL = 'bot' # this should be the slack channel which you want to send messages to
 #URL = 'https://www.dmv.ca.gov/wasapp/foa/findDriveTest.do'  # behind the wheel test
 URL = 'https://www.dmv.ca.gov/wasapp/foa/findOfficeVisit.do' # permit test
-TIMERANGE = 4
+TIMERANGE = 100
 EARLESTDAY = "May 17, 2018"
 DAY_PERIOD = 60
 NIGHT_PERIOD = 300
