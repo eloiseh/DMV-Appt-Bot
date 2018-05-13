@@ -2,10 +2,9 @@ from selenium import webdriver
 from settings import PROFILE, URL
 from logger import Logger
 from datetime import datetime, timedelta
+from pyvirtualdisplay import Display
 import time
 import urllib
-
-from pyvirtualdisplay import Display
 
 
 class Scraper:
@@ -16,8 +15,8 @@ class Scraper:
         self.display.start()
 
         # Start a real browser or background CLI 
-        self.browser = webdriver.Chrome('./chromedriver')
-        # self.browser = webdriver.PhantomJS('phantomjs')
+        # self.browser = webdriver.Chrome('./chromedriver')
+        self.browser = webdriver.PhantomJS('phantomjs')
         self.logger.log("New instance of scraper created")
         self.type = type
         self.start_date = start_date
@@ -77,28 +76,26 @@ class Scraper:
     def get_appointment(self, browser):
         time.sleep(3)
         # Found available date
-        # try:
-        element = browser.find_element_by_xpath('//*[@id="app_content"]/form/div[1]/div[2]/table/tbody/tr/td[3]/p[2]/strong').get_attribute('innerHTML')
-        # element = browser.find_element_by_xpath('//*[@id="app_content"]/div[1]/div[2]/table/tbody/tr/td[2]/p[2]/strong').get_attribute('innerHTML')
-        # self.logger.log("Valid appointment xpath found")
-        if element and element[:5] == 'Sorry':
-            return element, False, False
-        
-        elif self._check_time_require(element):
-            print("Find a valid Date!")
-            if self.auto_make:
-                browser.find_element_by_xpath('//*[@id="app_content"]/div/a[1]').click()
-                # browser.find_element_by_xpath("//a[normalize-space(.)='Continue']").click()
-                browser.switch_to_default_content()
-                return element, True, self.appt_form_fill(browser)
+        try:
+            element = browser.find_element_by_xpath('//*[@id="app_content"]/form/div[1]/div[2]/table/tbody/tr/td[3]/p[2]/strong').get_attribute('innerHTML')
+            # element = browser.find_element_by_xpath('//*[@id="app_content"]/div[1]/div[2]/table/tbody/tr/td[2]/p[2]/strong').get_attribute('innerHTML')
+            if element and element[:5] == 'Sorry':
+                return element, False, False
+            
+            elif self._check_time_require(element):
+                print("Find a valid Date!")
+                if self.auto_make:
+                    browser.find_element_by_xpath('//*[@id="app_content"]/div/a[1]').click()
+                    browser.switch_to_default_content()
+                    return element, True, self.appt_form_fill(browser)
+                else:
+                    return element, True, False
             else:
-                return element, True, False
-        else:
-            return element, False, False
+                return element, False, False
 
-        # except:
-            # self.logger.log("No valid appointment xpath found when filling 2nd form.")
-            # pass
+        except:
+            self.logger.log("No valid appointment xpath found when filling 2nd form.")
+            pass
 
         # No available date
         try:
@@ -135,10 +132,7 @@ class Scraper:
         time.sleep(3)
         if "System Unavailable" not in browser.find_element_by_xpath('//*[@id="app_content"]').get_attribute('innerHTML'):
             browser.save_screenshot("screenshot_%d.png" % int(time.time()))
-            # browser.find_element_by_xpath('//*[@id="app_content"]').save_screenshot("screenshot_%d.png" % int(time.time()))
 
-            # browser.save_screenshot("screenshot_%d.png" % int(time.time()))
-            # urllib.request("/wasapp/foa/generateQRCode.do", "qrcode_%d.png" % int(time.time()))
             # browser.find_element_by_xpath('//*[@id="emailAddress"]').send_keys(PROFILE['email'])
             # browser.find_element_by_xpath('//*[@id="validateEmailAddress"]').send_keys(PROFILE['email'])
             # browser.find_element_by_xpath('//*[@id="sendEmailButton"]').click()
