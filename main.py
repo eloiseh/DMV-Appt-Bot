@@ -32,12 +32,12 @@ class App:
                 self.logger.log("Is nightime, start a new round")
                 self.run_once()
                 self.logger.log("End a round")
-                time.sleep(DAY_PERIOD)
+                time.sleep(NIGHT_PERIOD)
             else:
                 self.logger.log("Is daytime, start a new round")
                 self.run_once()
                 self.logger.log("End a round")
-                time.sleep(NIGHT_PERIOD)
+                time.sleep(DAY_PERIOD)
 
     def run_once(self):
         for location, office_id in LOCATIONS.items():

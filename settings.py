@@ -3,7 +3,7 @@ SLACK_CHANNEL = 'bot' # this should be the slack channel which you want to send 
 URL = 'https://www.dmv.ca.gov/wasapp/foa/findOfficeVisit.do' # permit test
 TIMERANGE = 3
 EARLESTDAY = "May 17, 2018"
-DAY_PERIOD = 60
+DAY_PERIOD = 90
 NIGHT_PERIOD = 300
 LOCATIONS = {
     # 'San Mateo': '130', # the office ID obtained by inspecting the xpath, this is what selenium uses to identify the correct option
