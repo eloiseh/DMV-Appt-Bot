@@ -1,5 +1,5 @@
 from selenium import webdriver
-from settings import PROFILE, URL
+from settings import PROFILE, DRIVE_URL, WRITEN_URL
 from logger import Logger
 from datetime import datetime, timedelta
 from pyvirtualdisplay import Display
@@ -26,7 +26,10 @@ class Scraper:
     def i_want_an_appointment_at(self, office_id):
         self.logger.log("Start an appointment searching process for {}.".format(office_id))
         self.browser.delete_all_cookies()
-        self.browser.get(URL)
+        if self.type == 1:
+            self.browser.get(WRITEN_URL)
+        else:
+            self.browser.get(DRIVE_URL)
         time.sleep(3)
 
         if self.form_fill_and_submit(self.browser, office_id):
