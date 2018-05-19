@@ -1,5 +1,5 @@
 from creds import SLACK_TOKEN
-from settings import SLACK_CHANNEL, URL
+from settings import SLACK_CHANNEL, DRIVE_URL
 from slackclient import SlackClient
 from datetime import datetime
 from logger import Logger
@@ -61,5 +61,5 @@ class Bot:
             for output in output_list:
                 if output and 'text' in output and 'url' in output['text']:
                     self.logger.log("Command identified to be 'url'")
-                    return URL
+                    return DRIVE_URL
         return None
