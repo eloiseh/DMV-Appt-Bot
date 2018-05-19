@@ -1,16 +1,16 @@
 SLACK_CHANNEL = 'bot' # this should be the slack channel which you want to send messages to
-#URL = 'https://www.dmv.ca.gov/wasapp/foa/findDriveTest.do'  # behind the wheel test
-URL = 'https://www.dmv.ca.gov/wasapp/foa/findOfficeVisit.do' # permit test
-TIMERANGE = 3
-EARLESTDAY = "May 17, 2018"
-DAY_PERIOD = 90
-NIGHT_PERIOD = 300
+DRIVE_URL = 'https://www.dmv.ca.gov/wasapp/foa/clear.do?goTo=driveTest'  # behind the wheel test
+WRITEN_URL = 'https://www.dmv.ca.gov/wasapp/foa/clear.do?goTo=officeVisit&localeName=en' # permit test
+TIMERANGE = 2 # maximum days from ealiest day
+EARLESTDAY = "May 25, 2018" # Earliest available day
+DAY_PERIOD = 20 # seconds between each fetching at daytime
+NIGHT_PERIOD = 150 # seconds between each fetching at nighttime
 LOCATIONS = {
-    # 'San Mateo': '130', # the office ID obtained by inspecting the xpath, this is what selenium uses to identify the correct option
-    'Redwood City': '548',
+    'Redwood City': '548', # the office ID obtained by inspecting the xpath
     'San Jose': '516',
     'Santa Clara': '632',
-    'Las Gatos': '640'
+    # 'Las Gatos': '640',
+    # 'San Jose DLPC': '645'
 }
 PROFILE = {
     'first_name': 'Zhao',
@@ -18,10 +18,9 @@ PROFILE = {
     'tel_prefix': '412',
     'tel_suffix1': '608',
     'tel_suffix2': '3112',
-    'email': 'joe.pekdz@gmail.com'
-    #    'mm': '09',
-    #    'dd': '01',
-    #    'yyyy': '1994',
-    #    'dl_number': 'Y4497779'
+    'email': 'joe.pekdz@gmail.com',
+    'mm': '09',
+    'dd': '01',
+    'yyyy': '1994',
+    'dl_number': 'Y5306083'
 }
-

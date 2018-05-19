@@ -13,7 +13,7 @@ class App:
         # self.db = DB()
         self.logger = Logger()
         self.bot = Bot()
-        self.scraper = Scraper(1, EARLESTDAY, TIMERANGE, True)
+        self.scraper = Scraper(2, EARLESTDAY, TIMERANGE, True)
 
     def run(self):
         self.logger.log("App start")
