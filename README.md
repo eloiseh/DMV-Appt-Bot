@@ -7,9 +7,9 @@ Grab your local copy.
 ```
 https://github.com/Pekdz/stalk-the-DMV.git
 ```
-Install the dependencies, which includes python libraries and phantomjs.
-Only available in Linux, no Mac because Mac doesn't support virtual display to save screenshot(maybe).
-Recommended to create a free linux machine in cloud(e.g., AWS)
+Linux only, no Mac because Mac doesn't support virtual display to save screenshot(maybe). Recommended to create a free linux machine in cloud(e.g., AWS).
+
+Install the dependencies.
 ```
 sudo apt-get install xvfb xserver-xephyr
 sudo pip install -r requirements.txt
@@ -60,5 +60,7 @@ python main.py
 ```
 
 ## Caveats
+
 This is not a hack, all it does is automating an otherwise tedious process of page refreshing and manual monitoring. 
-Only used for personal non-commercial purpose.
+
+**Only used for personal non-commercial purpose.**
