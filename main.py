@@ -1,19 +1,16 @@
 from scraper import Scraper
-from settings import LOCATIONS, TIMERANGE, DAY_PERIOD, NIGHT_PERIOD, EARLESTDAY
+from settings import LOCATIONS, TIMERANGE, DAY_PERIOD, NIGHT_PERIOD, EARLESTDAY, APPT_TYPE, HEARTBEAT_PERIOD
 from bot import Bot
-# from database import DB
 from logger import Logger
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 import time
 import threading
 
 class App:
     def __init__(self):
-        # self.db = DB()
         self.logger = Logger()
         self.bot = Bot()
-        self.scraper = Scraper(2, EARLESTDAY, TIMERANGE, True)
+        self.scraper = Scraper(APPT_TYPE, EARLESTDAY, TIMERANGE, True)
 
     def run(self):
         self.logger.log("App start")
@@ -21,14 +18,11 @@ class App:
         heartbeat = datetime.now()
 
         while True:
-            if (datetime.now() - heartbeat) / timedelta(minutes=60) > 1:
+            if (datetime.now() - heartbeat) / timedelta(minutes=HEARTBEAT_PERIOD) > 1:
                 self.bot.post_text("Still working...")
                 heartbeat = datetime.now()
 
             if not self._is_daytime():
-                # self.logger.log("Is night, going to sleep")
-                # self._sleep_till_morning()
-                # self.logger.log("Waking up from sleep")
                 self.logger.log("Is nightime, start a new round")
                 self.run_once()
                 self.logger.log("End a round")
@@ -41,10 +35,8 @@ class App:
 
     def run_once(self):
         for location, office_id in LOCATIONS.items():
-            # self.logger.log("Checking appointment for %s" % location)
             appt, valid, complete = self.scraper.i_want_an_appointment_at(office_id)
             if valid:
-                # self.logger.log("Appointment retrieved from web page")
                 msg = "*{}*\n{}".format(location, appt)
                 self.bot.post_message(msg)
 
@@ -58,7 +50,6 @@ class App:
     def _is_daytime(self):
         curr_hour = datetime.now().hour
         return True if not 1 <= curr_hour <= 7 else False
-        # return True
 
     def _sleep_till_morning(self):
         self.logger.log("Is night time, going to sleep now.")

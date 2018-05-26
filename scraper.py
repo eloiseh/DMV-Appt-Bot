@@ -1,5 +1,5 @@
 from selenium import webdriver
-from settings import PROFILE, DRIVE_URL, WRITEN_URL
+from settings import PROFILE, DRIVE_URL, WRITEN_URL, APPT_TYPE, NOTIFICATION_TYPE
 from logger import Logger
 from datetime import datetime, timedelta
 from pyvirtualdisplay import Display
@@ -8,32 +8,32 @@ import urllib
 
 
 class Scraper:
-    def __init__(self, type, start_date, time_range, auto_make):
+    def __init__(self, appt_type, start_date, time_range, auto_make):
         self.logger = Logger()
 
         self.display = Display(visible=0, size=(1280, 2000))
         self.display.start()
 
-        # Start a real browser or background CLI 
+        # Start a real browser or background job 
         # self.browser = webdriver.Chrome('./chromedriver')
         self.browser = webdriver.PhantomJS('phantomjs')
         self.logger.log("New instance of scraper created")
-        self.type = type
         self.start_date = start_date
         self.time_range = time_range
         self.auto_make = auto_make
+        self.type = appt_type
 
     def i_want_an_appointment_at(self, office_id):
         self.logger.log("Start an appointment searching process for {}.".format(office_id))
         self.browser.delete_all_cookies()
-        if self.type == 1:
+        if APPT_TYPE == 1:
             self.browser.get(WRITEN_URL)
         else:
             self.browser.get(DRIVE_URL)
         time.sleep(3)
 
         if self.form_fill_and_submit(self.browser, office_id):
-            if self.type == 1:
+            if APPT_TYPE == 1:
                 return self.get_permit_appointment(self.browser)
             else:
                 return self.get_driving_appointment(self.browser)
@@ -44,7 +44,7 @@ class Scraper:
         try:
             browser.find_element_by_xpath('//*[@id="officeId"]/option[@value={}]'.format(office_id)).click()
 
-            if self.type == 1:
+            if APPT_TYPE == 1:
                 browser.find_element_by_xpath('//*[@id="one_task"]').click()
                 browser.find_element_by_xpath('//*[@id="taskCID"]').click()
                 browser.find_element_by_xpath('//*[@id="first_name"]').send_keys(PROFILE['first_name'])
@@ -53,7 +53,7 @@ class Scraper:
                 browser.find_element_by_xpath('//*[@id="telPrefix"]').send_keys(PROFILE['tel_suffix1'])
                 browser.find_element_by_xpath('//*[@id="telSuffix"]').send_keys(PROFILE['tel_suffix2'])
                 browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[8]/input[2]').click()
-            elif self.type == 2:
+            elif APPT_TYPE == 2:
                 browser.find_element_by_xpath('//*[@id="DT"]').click()
                 browser.find_element_by_xpath('//*[@id="first_name"]').send_keys(PROFILE['first_name'])
                 browser.find_element_by_xpath('//*[@id="last_name"]').send_keys(PROFILE['last_name'])
@@ -153,34 +153,32 @@ class Scraper:
     def appt_form_fill(self, browser):
         time.sleep(3)
 
-        browser.find_element_by_xpath('//*[@id="email_method"]').click()
-        browser.find_element_by_xpath('//*[@id="notify_email"]').send_keys(PROFILE['email'])
-        browser.find_element_by_xpath('//*[@id="notify_email_confirm"]').send_keys(PROFILE['email'])    
-        
-        # browser.find_element_by_xpath('//*[@id="notify_smsTelArea"]').send_keys(PROFILE['tel_prefix'])
-        # browser.find_element_by_xpath('//*[@id="notify_smsTelPrefix"]').send_keys(PROFILE['tel_suffix1'])
-        # browser.find_element_by_xpath('//*[@id="notify_smsTelSuffix"]').send_keys(PROFILE['tel_suffix2'])
-        # browser.find_element_by_xpath('//*[@id="notify_smsTelArea_confirm"]').send_keys(PROFILE['tel_prefix'])
-        # browser.find_element_by_xpath('//*[@id="notify_smsTelPrefix_confirm"]').send_keys(PROFILE['tel_suffix1'])
-        # browser.find_element_by_xpath('//*[@id="notify_smsTelSuffix_confirm"]').send_keys(PROFILE['tel_suffix2'])
+        if NOTIFICATION_TYPE == 1:
+            browser.find_element_by_xpath('//*[@id="email_method"]').click()
+            browser.find_element_by_xpath('//*[@id="notify_email"]').send_keys(PROFILE['email'])
+            browser.find_element_by_xpath('//*[@id="notify_email_confirm"]').send_keys(PROFILE['email'])    
+        elif NOTIFICATION_TYPE == 2:
+            browser.find_element_by_xpath('//*[@id="notify_smsTelArea"]').send_keys(PROFILE['tel_prefix'])
+            browser.find_element_by_xpath('//*[@id="notify_smsTelPrefix"]').send_keys(PROFILE['tel_suffix1'])
+            browser.find_element_by_xpath('//*[@id="notify_smsTelSuffix"]').send_keys(PROFILE['tel_suffix2'])
+            browser.find_element_by_xpath('//*[@id="notify_smsTelArea_confirm"]').send_keys(PROFILE['tel_prefix'])
+            browser.find_element_by_xpath('//*[@id="notify_smsTelPrefix_confirm"]').send_keys(PROFILE['tel_suffix1'])
+            browser.find_element_by_xpath('//*[@id="notify_smsTelSuffix_confirm"]').send_keys(PROFILE['tel_suffix2'])
 
         browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[11]/input[1]').click()
         browser.switch_to_default_content()
 
         time.sleep(3)
-        if self.type == 1:
+        if APPT_TYPE == 1:
             browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[10]/input[1]').click()
-        else:
+        elif APPT_TYPE == 2:
             browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[9]/input[1]').click()
         browser.switch_to_default_content()
 
         time.sleep(3)
         if "System Unavailable" not in browser.find_element_by_xpath('//*[@id="app_content"]').get_attribute('innerHTML'):
+            # save confirmation page in local directory
             browser.save_screenshot("screenshot_%d.png" % int(time.time()))
-
-            # browser.find_element_by_xpath('//*[@id="emailAddress"]').send_keys(PROFILE['email'])
-            # browser.find_element_by_xpath('//*[@id="validateEmailAddress"]').send_keys(PROFILE['email'])
-            # browser.find_element_by_xpath('//*[@id="sendEmailButton"]').click()
             time.sleep(2)
             browser.quit()
             self.display.stop()
