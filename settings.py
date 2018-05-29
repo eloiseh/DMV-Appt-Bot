@@ -3,16 +3,18 @@ APPT_TYPE = 2               # 1 for general appointment(writen test, renew, repl
 DRIVE_URL = 'https://www.dmv.ca.gov/wasapp/foa/clear.do?goTo=driveTest'                  # driving test url
 WRITEN_URL = 'https://www.dmv.ca.gov/wasapp/foa/clear.do?goTo=officeVisit&localeName=en' # writen test url
 TIMERANGE = 2               # maximum days from ealiest day
-EARLESTDAY = "May 25, 2018" # earliest desired day
+EARLESTDAY = "May 31, 2018" # desired earliest desired day
+START_HOUR = 8              # desired earliest hour
+END_HOUR = 10               # desired latest hour 
 DAY_PERIOD = 20             # num of seconds period for each query round at daytime
 NIGHT_PERIOD = 150          # num of seconds period for each query round at nighttime
 NOTIFICATION_TYPE = 1       # 1 for email, 2 for sms. notification actually doesn't work in dmv system
 HEARTBEAT_PERIOD = 60       # num of minutes period for heartbeat message sent to slack
 LOCATIONS = {               # the office ID obtained by inspecting the xpath
-    'Redwood City': '548',
+    #'Redwood City': '548',
     'San Jose': '516',
     'Santa Clara': '632',
-    'Las Gatos': '640',
+    #'Las Gatos': '640',
     'San Jose DLPC': '645'
 }
 PROFILE = {                 # Your information

@@ -1,5 +1,5 @@
 from selenium import webdriver
-from settings import PROFILE, DRIVE_URL, WRITEN_URL, APPT_TYPE, NOTIFICATION_TYPE
+from settings import PROFILE, DRIVE_URL, WRITEN_URL, NOTIFICATION_TYPE, START_HOUR, END_HOUR
 from logger import Logger
 from datetime import datetime, timedelta
 from pyvirtualdisplay import Display
@@ -26,16 +26,16 @@ class Scraper:
     def i_want_an_appointment_at(self, office_id):
         self.logger.log("Start an appointment searching process for {}.".format(office_id))
         self.browser.delete_all_cookies()
-        if APPT_TYPE == 1:
+        if self.type == 1:
             self.browser.get(WRITEN_URL)
-        else:
+        elif self.type == 2:
             self.browser.get(DRIVE_URL)
         time.sleep(3)
 
         if self.form_fill_and_submit(self.browser, office_id):
-            if APPT_TYPE == 1:
+            if self.type == 1:
                 return self.get_permit_appointment(self.browser)
-            else:
+            elif self.type == 2:
                 return self.get_driving_appointment(self.browser)
         else:
             return None, False, False
@@ -44,7 +44,7 @@ class Scraper:
         try:
             browser.find_element_by_xpath('//*[@id="officeId"]/option[@value={}]'.format(office_id)).click()
 
-            if APPT_TYPE == 1:
+            if self.type == 1:
                 browser.find_element_by_xpath('//*[@id="one_task"]').click()
                 browser.find_element_by_xpath('//*[@id="taskCID"]').click()
                 browser.find_element_by_xpath('//*[@id="first_name"]').send_keys(PROFILE['first_name'])
@@ -53,7 +53,7 @@ class Scraper:
                 browser.find_element_by_xpath('//*[@id="telPrefix"]').send_keys(PROFILE['tel_suffix1'])
                 browser.find_element_by_xpath('//*[@id="telSuffix"]').send_keys(PROFILE['tel_suffix2'])
                 browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[8]/input[2]').click()
-            elif APPT_TYPE == 2:
+            elif self.type == 2:
                 browser.find_element_by_xpath('//*[@id="DT"]').click()
                 browser.find_element_by_xpath('//*[@id="first_name"]').send_keys(PROFILE['first_name'])
                 browser.find_element_by_xpath('//*[@id="last_name"]').send_keys(PROFILE['last_name'])
@@ -78,9 +78,12 @@ class Scraper:
 
     def _check_time_require(self, timestr):
         time_dmv = datetime.strptime(timestr.strip(), '%A, %B %d, %Y at %I:%M %p')
-        time_now = datetime.strptime(self.start_date, '%B %d, %Y')
-        diff = (time_dmv - time_now)/timedelta(days=1)
-        return diff < self.time_range and diff >= 0
+        if time_dmv.hour < START_HOUR or time_dmv.hour > END_HOUR:
+            return False
+        else:
+            time_now = datetime.strptime(self.start_date, '%B %d, %Y')
+            diff = (time_dmv - time_now)/timedelta(days=1)
+            return diff < self.time_range and diff >= 0
 
     def get_permit_appointment(self, browser):
         time.sleep(3)
@@ -169,9 +172,9 @@ class Scraper:
         browser.switch_to_default_content()
 
         time.sleep(3)
-        if APPT_TYPE == 1:
+        if self.type == 1:
             browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[10]/input[1]').click()
-        elif APPT_TYPE == 2:
+        elif self.type == 2:
             browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[9]/input[1]').click()
         browser.switch_to_default_content()
 
