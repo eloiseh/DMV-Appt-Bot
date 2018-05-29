@@ -1,11 +1,17 @@
-# Stalk the DMV - Advanced Edition
+# DMV Bot
 
-[Original version](https://github.com/thisisandreeeee/stalk-the-DMV) only supports querying DMV available date for driving test appointment, this advanced version supports making appointment for both writen test and driving test automatically, the location and date can be set as you desired, the confirmation page's screenshot will be saved.
+Forked from [Stalk-the-DMV](https://github.com/thisisandreeeee/stalk-the-DMV), which only supports querying available appointment date for driving test. This advanced version added features: 
+
+- Query both normal appointment(written test, replace driver license,...) and driving test
+- Make appointment automatically
+- Set desired time range for appointment
+- Save confirm page as screenshot in local directory
+- Send keepalive message to Slack channel
 
 ## Installation and Usage
 Grab your local copy.
 ```
-https://github.com/Pekdz/stalk-the-DMV.git
+git clone https://github.com/Pekdz/DMV-Appt-Bot.git
 ```
 Linux only, no Mac because Mac doesn't support virtual display to save screenshot(maybe). Recommended to create a free linux machine in cloud(e.g., AWS).
 
@@ -28,12 +34,15 @@ echo "SLACK_TOKEN='your-token-here'" >> creds.py
 Don't forget to replace the string above with your own slack token. When that is done, open `settings.py` and update it with your information.
 ```python
 SLACK_CHANNEL = 'bot'       # the slack channel which you want to send messages to
-DRIVE_URL = 'https://www.dmv.ca.gov/wasapp/foa/clear.do?goTo=driveTest'                  # driving test
-WRITEN_URL = 'https://www.dmv.ca.gov/wasapp/foa/clear.do?goTo=officeVisit&localeName=en' # writen test
+APPT_TYPE = 2               # 1 for general appointment(writen test, renew, replace license), 2 for driving test
+DRIVE_URL = 'https://www.dmv.ca.gov/wasapp/foa/clear.do?goTo=driveTest'                  # driving test url
+WRITEN_URL = 'https://www.dmv.ca.gov/wasapp/foa/clear.do?goTo=officeVisit&localeName=en' # writen test url
 TIMERANGE = 2               # maximum days from ealiest day
-EARLESTDAY = "May 25, 2018" # Earliest available day
-DAY_PERIOD = 20             # seconds between each fetching at daytime
-NIGHT_PERIOD = 150          # seconds between each fetching at nighttime
+EARLESTDAY = "May 25, 2018" # earliest desired day
+DAY_PERIOD = 20             # num of seconds period for each query round at daytime
+NIGHT_PERIOD = 150          # num of seconds period for each query round at nighttime
+NOTIFICATION_TYPE = 1       # 1 for email, 2 for sms. notification actually doesn't work in dmv system
+HEARTBEAT_PERIOD = 60       # num of minutes period for heartbeat message sent to slack
 LOCATIONS = {               # the office ID obtained by inspecting the xpath
     'Redwood City': '548',
     'San Jose': '516',
@@ -41,13 +50,14 @@ LOCATIONS = {               # the office ID obtained by inspecting the xpath
     'Las Gatos': '640',
     'San Jose DLPC': '645'
 }
-PROFILE = {
-    'first_name': 'xxx',
-    'last_name': 'xxx',
+PROFILE = {                 # Your information
+    'first_name': 'Winnie',
+    'last_name': 'Xi',
     'tel_prefix': 'xxx',
     'tel_suffix1': 'xxx',
     'tel_suffix2': 'xxxx',
     'email': 'xxxx@gmail.com',
+    ##### Following only required for driving test #####
     'mm': 'xx',
     'dd': 'xx',
     'yyyy': 'xxxx',
