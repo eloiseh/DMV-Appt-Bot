@@ -33,6 +33,10 @@ sudo tar xvjf $PHANTOM_JS.tar.bz2
 sudo mv $PHANTOM_JS /usr/local/share
 sudo ln -sf /usr/local/share/$PHANTOM_JS/bin/phantomjs /usr/local/bin
 ```
+There is different fetching frequency between daytime and nighttime, so you may need to correct the timezone on your machine.
+```
+sudo dpkg-reconfigure tzdata
+```
 Obtain a [slack token](https://api.slack.com/docs/oauth-test-tokens). Then, create a config file - this should be kept hidden! In the current directory, enter the following:
 ```
 echo "SLACK_TOKEN='your-token-here'" >> creds.py
