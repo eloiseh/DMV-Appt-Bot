@@ -13,12 +13,18 @@ Grab your local copy.
 ```
 git clone https://github.com/Pekdz/DMV-Appt-Bot.git
 ```
-Linux only, no Mac because Mac doesn't support virtual display to save screenshot(maybe). Recommended to create a free linux machine in cloud(e.g., AWS).
+Linux only, only tested in Ubuntu. Recommended to create an Ubuntu x64 machine in AWS.
 
 Install the dependencies.
 ```
-sudo apt-get install xvfb xserver-xephyr
-sudo pip install -r requirements.txt
+sudo apt-get update
+sudo apt-get install xvfb xserver-xephyr libfontconfig
+
+# Install pip first if you don't have
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+sudo python3 get-pip.py
+# Then
+sudo pip3 install -r requirements.txt
 
 cd ~
 export PHANTOM_JS="phantomjs-2.1.1-linux-x86_64"
@@ -33,7 +39,7 @@ echo "SLACK_TOKEN='your-token-here'" >> creds.py
 ```
 Don't forget to replace the string above with your own slack token. When that is done, open `settings.py` and update it with your information.
 ```python
-SLACK_CHANNEL = 'bot'       # the slack channel which you want to send messages to
+SLACK_CHANNEL = 'bot'       # the slack channel which you want to send notifications to, not workspace name
 APPT_TYPE = 2               # 1 for general appointment(writen test, renew, replace license), 2 for driving test
 DRIVE_URL = 'https://www.dmv.ca.gov/wasapp/foa/clear.do?goTo=driveTest'                  # driving test url
 WRITEN_URL = 'https://www.dmv.ca.gov/wasapp/foa/clear.do?goTo=officeVisit&localeName=en' # writen test url
@@ -66,7 +72,7 @@ PROFILE = {                 # Your information
 ```
 Run the bot.
 ```
-python main.py
+python3 main.py
 ```
 
 ## Caveats
