@@ -8,7 +8,7 @@ import urllib
 
 
 class Scraper:
-    def __init__(self, appt_type, start_date, time_range, auto_make):
+    def __init__(self, appt_type, start_date, time_range, reappt, auto_make):
         self.logger = Logger()
 
         self.display = Display(visible=0, size=(1280, 2000))
@@ -20,6 +20,7 @@ class Scraper:
         self.logger.log("New instance of scraper created")
         self.start_date = start_date
         self.time_range = time_range
+        self.reappt = reappt
         self.auto_make = auto_make
         self.type = appt_type
 
@@ -65,7 +66,7 @@ class Scraper:
                 browser.find_element_by_xpath('//*[@id="telPrefix"]').send_keys(PROFILE['tel_suffix1'])
                 browser.find_element_by_xpath('//*[@id="telSuffix"]').send_keys(PROFILE['tel_suffix2'])
                 browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[5]/input[2]').click()
-            
+
             # self.logger.log("Form filled and submitted for office %s" % office_id)
             browser.switch_to_default_content()
             return True
@@ -75,24 +76,24 @@ class Scraper:
 
         return False
 
-
     def _check_time_require(self, timestr):
         time_dmv = datetime.strptime(timestr.strip(), '%A, %B %d, %Y at %I:%M %p')
         if time_dmv.hour < START_HOUR or time_dmv.hour > END_HOUR:
             return False
         else:
             time_now = datetime.strptime(self.start_date, '%B %d, %Y')
-            diff = (time_dmv - time_now)/timedelta(days=1)
+            diff = (time_dmv - time_now) / timedelta(days=1)
             return diff < self.time_range and diff >= 0
 
     def get_permit_appointment(self, browser):
         time.sleep(3)
         # Found available date
         try:
-            element = browser.find_element_by_xpath('//*[@id="app_content"]/form/div[1]/div[2]/table/tbody/tr/td[3]/p[2]/strong').get_attribute('innerHTML')
+            element = browser.find_element_by_xpath(
+                '//*[@id="app_content"]/form/div[1]/div[2]/table/tbody/tr/td[3]/p[2]/strong').get_attribute('innerHTML')
             if element and element[:5] == 'Sorry':
                 return element, False, False
-            
+
             elif self._check_time_require(element):
                 print("Find a valid Date!")
                 if self.auto_make:
@@ -110,23 +111,25 @@ class Scraper:
 
         # No available date
         try:
-            element = browser.find_element_by_xpath('//*[@id="app_content"]/table/tbody/tr[2]/td/p').get_attribute('innerHTML')
+            element = browser.find_element_by_xpath('//*[@id="app_content"]/table/tbody/tr[2]/td/p').get_attribute(
+                'innerHTML')
             self.logger.log("No available appointments")
             return element, False, False
         except:
             self.logger.log("Invalid xpath - no element found")
             pass
-        
+
         return None, False, False
 
     def get_driving_appointment(self, browser):
         time.sleep(3)
         # Found available date
         try:
-            element = browser.find_element_by_xpath('//*[@id="app_content"]/form/div[1]/div[2]/table/tbody/tr/td[2]/p[2]/strong').get_attribute('innerHTML')
+            element = browser.find_element_by_xpath(
+                '//*[@id="app_content"]/form/div[1]/div[2]/table/tbody/tr/td[2]/p[2]/strong').get_attribute('innerHTML')
             if element and element[:5] == 'Sorry':
                 return element, False, False
-            
+
             elif self._check_time_require(element):
                 print("Find a valid Date!")
                 if self.auto_make:
@@ -144,29 +147,30 @@ class Scraper:
 
         # No available date
         try:
-            element = browser.find_element_by_xpath('//*[@id="app_content"]/table/tbody/tr[2]/td/p').get_attribute('innerHTML')
+            element = browser.find_element_by_xpath('//*[@id="app_content"]/table/tbody/tr[2]/td/p').get_attribute(
+                'innerHTML')
             self.logger.log("No available appointments")
             return element, False, False
         except:
             self.logger.log("Invalid xpath - no element found")
             pass
-        
+
         return None, False, False
 
     def appt_form_fill(self, browser):
         time.sleep(3)
 
-        if NOTIFICATION_TYPE == 1:
-            browser.find_element_by_xpath('//*[@id="email_method"]').click()
-            browser.find_element_by_xpath('//*[@id="notify_email"]').send_keys(PROFILE['email'])
-            browser.find_element_by_xpath('//*[@id="notify_email_confirm"]').send_keys(PROFILE['email'])    
-        elif NOTIFICATION_TYPE == 2:
-            browser.find_element_by_xpath('//*[@id="notify_smsTelArea"]').send_keys(PROFILE['tel_prefix'])
-            browser.find_element_by_xpath('//*[@id="notify_smsTelPrefix"]').send_keys(PROFILE['tel_suffix1'])
-            browser.find_element_by_xpath('//*[@id="notify_smsTelSuffix"]').send_keys(PROFILE['tel_suffix2'])
-            browser.find_element_by_xpath('//*[@id="notify_smsTelArea_confirm"]').send_keys(PROFILE['tel_prefix'])
-            browser.find_element_by_xpath('//*[@id="notify_smsTelPrefix_confirm"]').send_keys(PROFILE['tel_suffix1'])
-            browser.find_element_by_xpath('//*[@id="notify_smsTelSuffix_confirm"]').send_keys(PROFILE['tel_suffix2'])
+        # if NOTIFICATION_TYPE == 1:
+        #     browser.find_element_by_xpath('//*[@id="email_method"]').click()
+        #     browser.find_element_by_xpath('//*[@id="notify_email"]').send_keys(PROFILE['email'])
+        #     browser.find_element_by_xpath('//*[@id="notify_email_confirm"]').send_keys(PROFILE['email'])
+        # elif NOTIFICATION_TYPE == 2:
+        #     browser.find_element_by_xpath('//*[@id="notify_smsTelArea"]').send_keys(PROFILE['tel_prefix'])
+        #     browser.find_element_by_xpath('//*[@id="notify_smsTelPrefix"]').send_keys(PROFILE['tel_suffix1'])
+        #     browser.find_element_by_xpath('//*[@id="notify_smsTelSuffix"]').send_keys(PROFILE['tel_suffix2'])
+        #     browser.find_element_by_xpath('//*[@id="notify_smsTelArea_confirm"]').send_keys(PROFILE['tel_prefix'])
+        #     browser.find_element_by_xpath('//*[@id="notify_smsTelPrefix_confirm"]').send_keys(PROFILE['tel_suffix1'])
+        #     browser.find_element_by_xpath('//*[@id="notify_smsTelSuffix_confirm"]').send_keys(PROFILE['tel_suffix2'])
 
         browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[11]/input[1]').click()
         browser.switch_to_default_content()
@@ -175,11 +179,15 @@ class Scraper:
         if self.type == 1:
             browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[10]/input[1]').click()
         elif self.type == 2:
-            browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[9]/input[1]').click()
+            if self.reappt:
+                browser.find_element_by_xpath('//*[@id="app_content"]/div/table/tbody/tr/td[1]/form/input').click()
+            else:
+                browser.find_element_by_xpath('//*[@id="app_content"]/form/fieldset/div[9]/input[1]').click()
         browser.switch_to_default_content()
 
         time.sleep(3)
-        if "System Unavailable" not in browser.find_element_by_xpath('//*[@id="app_content"]').get_attribute('innerHTML'):
+        if "System Unavailable" not in browser.find_element_by_xpath('//*[@id="app_content"]').get_attribute(
+                'innerHTML'):
             # save confirmation page in local directory
             browser.save_screenshot("screenshot_%d.png" % int(time.time()))
             time.sleep(2)
@@ -188,9 +196,3 @@ class Scraper:
             return True
         else:
             return False
-            
-
-
-
-
-

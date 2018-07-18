@@ -5,6 +5,7 @@ from datetime import datetime
 from logger import Logger
 import time
 
+
 class Bot:
     def __init__(self):
         self.sc = SlackClient(SLACK_TOKEN)
@@ -21,19 +22,20 @@ class Bot:
             msg = "*********************\n" + "<@U1YUJ2FBR> <@U1XU0UF7B>\n" + msg + "\n====================="
         self.sc.api_call(
             "chat.postMessage",
-            channel = SLACK_CHANNEL,
-            text = msg,
-            username = 'Bot',
-            icon_emoji = ':robot_face:')
-        self.logger.log("Message sent to %s: %s" % (SLACK_CHANNEL, msg.replace('\n',' ').replace('=','').replace('*','')))
+            channel=SLACK_CHANNEL,
+            text=msg,
+            username='Bot',
+            icon_emoji=':robot_face:')
+        self.logger.log(
+            "Message sent to %s: %s" % (SLACK_CHANNEL, msg.replace('\n', ' ').replace('=', '').replace('*', '')))
 
     def post_text(self, msg):
         self.sc.api_call(
             "chat.postMessage",
-            channel = SLACK_CHANNEL,
-            text = msg,
-            username = 'Bot',
-            icon_emoji = ':robot_face:')
+            channel=SLACK_CHANNEL,
+            text=msg,
+            username='Bot',
+            icon_emoji=':robot_face:')
 
     def listen(self):
         if self.sc.rtm_connect():
@@ -50,10 +52,10 @@ class Bot:
     def _handle_command(self, cmd):
         self.sc.api_call(
             "chat.postMessage",
-            channel = SLACK_CHANNEL,
-            text = cmd,
-            username = 'Bot',
-            icon_emoji = ':robot_face:')
+            channel=SLACK_CHANNEL,
+            text=cmd,
+            username='Bot',
+            icon_emoji=':robot_face:')
 
     def _parse_slack_output(self, rtm_output):
         output_list = rtm_output

@@ -1,16 +1,17 @@
 from scraper import Scraper
-from settings import LOCATIONS, TIMERANGE, DAY_PERIOD, NIGHT_PERIOD, EARLESTDAY, APPT_TYPE, HEARTBEAT_PERIOD
+from settings import LOCATIONS, TIMERANGE, DAY_PERIOD, NIGHT_PERIOD, EARLESTDAY, APPT_TYPE, REAPPT, HEARTBEAT_PERIOD
 from bot import Bot
 from logger import Logger
 from datetime import datetime, timedelta
 import time
 import threading
 
+
 class App:
     def __init__(self):
         self.logger = Logger()
         self.bot = Bot()
-        self.scraper = Scraper(APPT_TYPE, EARLESTDAY, TIMERANGE, True)
+        self.scraper = Scraper(APPT_TYPE, EARLESTDAY, TIMERANGE, REAPPT, True)
 
     def run(self):
         self.logger.log("App start")
@@ -55,6 +56,7 @@ class App:
         self.logger.log("Is night time, going to sleep now.")
         sleep_in_hours = 7 - datetime.now().hour
         time.sleep(sleep_in_hours * 3600)
+
 
 if __name__ == "__main__":
     app = App()
